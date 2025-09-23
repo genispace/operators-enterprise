@@ -22,7 +22,7 @@ services:
     networks:
       - genispace-network
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8080/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:8080/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -46,27 +46,6 @@ services:
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # 可选：Nginx反向代理
-  nginx:
-    image: nginx:alpine
-    container_name: genispace-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-    networks:
-      - genispace-network
-    depends_on:
-      - genispace-operators
-    healthcheck:
-      test: ["CMD", "nginx", "-t"]
       interval: 30s
       timeout: 10s
       retries: 3
