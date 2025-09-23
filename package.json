@@ -1,0 +1,57 @@
+{
+  "name": "operator-custom",
+  "version": "1.0.0",
+  "description": "GeniSpace AI Platform Custom Operators Collection - Lightweight operators framework for business automation",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "node test.js",
+    "build": "echo 'Build completed successfully'",
+    "docker:build": "docker build -t genispace/operator-custom:latest .",
+    "docker:run": "docker run -p 8080:8080 genispace/operator-custom:latest"
+  },
+  "keywords": [
+    "genispace",
+    "operators",
+    "automation",
+    "ai-platform",
+    "microservice",
+    "nodejs",
+    "express",
+    "openapi",
+    "swagger"
+  ],
+  "author": "genispace.com Dev Team <dev@genispace.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/genispace/operator-custom.git"
+  },
+  "bugs": {
+    "url": "https://github.com/genispace/operator-custom/issues"
+  },
+  "homepage": "https://github.com/genispace/operator-custom#readme",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "genispace": "^1.0.0",
+    "joi": "^17.11.0",
+    "morgan": "^1.10.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
