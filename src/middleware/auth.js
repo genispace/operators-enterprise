@@ -1,6 +1,29 @@
 /**
  * 极简 GeniSpace 认证中间件
  * 确保绝对不会崩溃
+ * 
+ * 支持的认证头格式：
+ * - Authorization: GeniSpace <api_key>  
+ * - GeniSpace: <api_key>
+ * 
+ * 使用说明：
+ * 1. 设置环境变量 GENISPACE_AUTH_ENABLED=true 启用认证
+ * 2. API类型算子在运行配置中启用"GeniSpace认证"选项
+ * 3. 算子执行时会自动传递System API Key用于身份验证
+ * 4. 验证成功后可通过 req.genispace 获取用户信息和API Key信息
+ * 
+ * 示例：
+ * ```javascript
+ * // 在算子中获取执行人信息
+ * app.post('/my-operator', auth(), (req, res) => {
+ *   if (req.genispace) {
+ *     console.log('执行人:', req.genispace.user.name);
+ *     console.log('团队ID:', req.genispace.keyInfo.teamId);
+ *     console.log('API Key:', req.genispace.apiKey);
+ *   }
+ *   // 算子逻辑...
+ * });
+ * ```
  */
 
 const GeniSpace = require('genispace');
@@ -23,17 +46,24 @@ setInterval(() => {
 
 /**
  * 提取 API Key
+ * 支持以下格式：
+ * - Authorization: GeniSpace <api_key>  
+ * - GeniSpace: <api_key>
+ * 
+ * 注意：不支持 Authorization: Bearer <api_key> 格式，
+ * 避免与用户自定义算子的认证头产生冲突
  */
 function extractApiKey(req) {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) return null;
-    
-    if (authHeader.startsWith('Bearer ')) {
-      return authHeader.substring(7);
+    // 优先检查 GeniSpace 头
+    const geniSpaceHeader = req.headers.genispace;
+    if (geniSpaceHeader) {
+      return geniSpaceHeader;
     }
     
-    if (authHeader.startsWith('GeniSpace ')) {
+    // 检查 Authorization 头中的 GeniSpace 格式
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('GeniSpace ')) {
       return authHeader.substring(10);
     }
     

@@ -235,7 +235,10 @@ genispace-operators-custom/
 
 **After enabling authentication**:
 - All `/api/*` paths will require valid GeniSpace API Key
-- Dedicated authentication format: `Authorization: GeniSpace <your-api-key>`
+- Supported authentication formats: 
+  - `Authorization: GeniSpace <your-api-key>`
+  - `GeniSpace: <your-api-key>` (recommended)
+- Does not support `Authorization: Bearer` format to avoid conflicts with custom operator authentication
 - Authentication results are cached for 5 minutes, reducing requests to GeniSpace platform
 
 ### Production Deployment
@@ -383,6 +386,23 @@ Test coverage:
    - All tests pass
    - API documentation generates normally
    - Operator definition links are accessible
+
+4. **API算子GeniSpace认证配置**
+   - 在算子运行配置中启用"GeniSpace认证"选项后，系统会自动传递System API Key
+   - 算子可以通过认证头验证执行人身份：
+   ```javascript
+   // 在算子路由中使用认证中间件
+   router.post('/my-api', auth(), (req, res) => {
+     if (req.genispace) {
+       // 获取执行人信息
+       const user = req.genispace.user;
+       const apiKey = req.genispace.apiKey;
+       // 算子逻辑...
+     }
+   });
+   ```
+   - 认证头格式：`GeniSpace: <system-api-key>`
+   - 可获取执行人信息：用户ID、姓名、邮箱、团队ID等
 
 ## 💡 Common Questions
 
