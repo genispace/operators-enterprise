@@ -148,3 +148,4 @@ debug.js
 *.bak
 *.backup
 *.orig
+outputs/

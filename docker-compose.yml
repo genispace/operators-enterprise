@@ -5,8 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: genispace/operator-custom:latest
-    container_name: genispace-operators-custom
+    image: genispace/operator-enterprise:latest
+    container_name: genispace-operators-enterprise
     restart: unless-stopped
     ports:
       - "8080:8080"

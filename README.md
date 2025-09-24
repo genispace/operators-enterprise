@@ -1,486 +1,221 @@
-# GeniSpace Custom Operators Library
+# GeniSpace Enterprise Operators Library
 
 **🌐 Language**: [中文](README_CN.md) | **English**
 
-> Simple, powerful, zero-learning-cost operator development framework
+> Enterprise-grade operators collection for AI agents and workflows
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen.svg)](https://nodejs.org/)
 
-## 💡 What is an Operator?
+## 💡 About This Project
 
-An operator is a component that wraps your business services into standardized interfaces, available for AI agents and workflows on the GeniSpace AI platform.
+**GeniSpace Enterprise Operators Library** is a curated collection of production-ready operators designed for enterprise use. Forked from [GeniSpace Custom Operators Library](https://github.com/genispace/operators-custom), this package focuses on providing stable, high-quality operators for common enterprise scenarios.
 
-## 🚀 What Can This Project Do?
+## 🎯 Key Features
 
-With this framework, you can:
-- **Connect Internal Systems**: Quickly wrap CRM, ERP, OA systems as operators
-- **Create Specialized Tools**: Develop operators for email sending, PDF generation, data processing, etc.
-- **Zero Learning Curve**: Based on standard OpenAPI specifications, no new syntax to learn
+- 📄 **PDF Generator**: Advanced PDF generation from HTML/Markdown templates
+- 🏢 **Enterprise Ready**: Production-tested operators with comprehensive documentation
+- 🔧 **Auto-Updated**: GeniSpace Dev Team automatically updates operators to platform
+- 🤝 **Community Driven**: Welcome enterprise operator contributions and proposals
+- 📦 **Enterprise Toolkit**: Curated collection of business-critical operators
 
-### Core Advantages
+## 🚀 Quick Start
 
-- 🚀 **Zero Learning Curve** - Uses standard OpenAPI/Swagger syntax, no new framework to learn
-- 📦 **Ready to Use** - Clone and run, automatic operator discovery, automatic documentation generation
-- 🔧 **Clear Architecture** - Configuration and code separation, simple maintenance
-- 🌐 **Platform Integration** - Perfect integration with [genispace.com](https://genispace.com) AI platform
-
-## 🚀 5-Minute Quick Start
-
-### 1. Start Service
+### 1. Clone and Start
 
 ```bash
-git clone https://github.com/genispace/operators-custom.git
-cd operators-custom
+git clone https://github.com/genispace/operators-enterprise.git
+cd operators-enterprise
 npm install
 npm start
 ```
 
-Access:
+### 2. Access Services
+
 - 🏠 **Homepage**: http://localhost:8080
-- 📚 **API Docs**: http://localhost:8080/api/docs  
+- 📚 **API Documentation**: http://localhost:8080/api/docs  
 - 🔍 **Health Check**: http://localhost:8080/health
 
-### 2. Test Operators
+### 3. Test PDF Generator
 
 ```bash
-# Run regression tests
-npm test
-
-# Test string utilities
-curl -X POST http://localhost:8080/api/text-processing/string-utils/format \
+# Test HTML to PDF
+curl -X POST http://localhost:8080/api/document/pdf-generator/generate-from-html \
   -H "Content-Type: application/json" \
-  -d '{"input":"hello world","options":{"case":"title"}}'
+  -d '{
+    "htmlContent": "<h1>Hello Enterprise</h1><p>PDF Generation Test</p>",
+    "fileName": "test-document"
+  }'
+
+# Test Markdown to PDF with template data
+curl -X POST http://localhost:8080/api/document/pdf-generator/generate-from-markdown \
+  -H "Content-Type: application/json" \
+  -d '{
+    "markdownTemplate": "# {{title}}\n\n**Author**: {{author}}\n\n{{content}}",
+    "templateData": {
+      "title": "Enterprise Report", 
+      "author": "GeniSpace", 
+      "content": "This is a template example."
+    },
+    "fileName": "enterprise-report"
+  }'
 ```
 
-### 3. Import to GeniSpace Platform
+### 4. GeniSpace Platform Integration
 
-1. Copy operator definition link (from homepage)
-2. In GeniSpace platform, select "Operator Import" → "GeniSpace Operator Definition"
-3. Paste link and import with one click
+**🎉 No manual import required!** 
 
-## 📝 Developing New Operators
+The **GeniSpace Dev Team** automatically updates this Enterprise Operators Library to the GeniSpace platform. All operators in this package are available directly in the platform without manual import.
 
-### Standard Process (2 Files)
+## 📦 Available Operators
 
-Creating an operator requires only two files:
+### 📄 PDF Generator
 
-```bash
-mkdir -p operators/example
-touch operators/example/demo.operator.js  # Configuration file
-touch operators/example/demo.routes.js    # Business logic
-```
+**Document processing operator for enterprise PDF generation needs**
 
-### Configuration File Example
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/document/pdf-generator/generate-from-html` | POST | Generate PDF from HTML content |
+| `/api/document/pdf-generator/generate-from-markdown` | POST | Generate PDF from Markdown template |
+| `/api/document/pdf-generator/download/{fileName}` | GET | Download generated PDF file |
 
-**`demo.operator.js`** - Using standard OpenAPI syntax:
+**Key Features:**
+- ✅ HTML to PDF conversion with CSS styling
+- ✅ Markdown template support with Mustache syntax
+- ✅ Template data substitution (`{{variable}}`)
+- ✅ Multiple storage options (Local/Aliyun OSS/Tencent COS)
+- ✅ Chinese font support (Noto CJK)
+- ✅ Docker deployment ready
+- ✅ Configurable page formats and margins
 
+**Example Usage:**
 ```javascript
-module.exports = {
-  info: {
-    name: 'demo',
-    title: 'Demo Operator',
-    description: 'String case conversion',
-    version: '1.0.0',
-    category: 'example'
+// HTML with template variables
+{
+  "htmlContent": "<h1>{{title}}</h1><p>Author: {{author}}</p>",
+  "templateData": {
+    "title": "Enterprise Report",
+    "author": "GeniSpace Team"
   },
-  routes: './demo.routes.js',
-  openapi: {
-    paths: {
-      '/convert': {
-        post: {
-          summary: 'Convert text case',
-          requestBody: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  required: ['text'],
-                  properties: {
-                    text: { type: 'string', example: 'hello' },
-                    toUpper: { type: 'boolean', default: true }
-                  }
-                }
-              }
-            }
-          },
-          responses: {
-            200: {
-              description: 'Conversion successful',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      success: { type: 'boolean' },
-                      data: { 
-                        type: 'object',
-                        properties: {
-                          result: { type: 'string', example: 'HELLO' }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-};
+  "fileName": "enterprise-report"
+}
 ```
 
-### Business Logic File
+### 🚀 Future Operators
 
-**`demo.routes.js`** - Standard Express routes:
-
-```javascript
-const express = require('express');
-const { sendSuccessResponse, sendErrorResponse } = require('../../src/utils/response');
-
-const router = express.Router();
-
-router.post('/convert', async (req, res, next) => {
-  try {
-    const { text, toUpper = true } = req.body;
-    
-    if (!text) {
-      return sendErrorResponse(res, 'Text cannot be empty', 400);
-    }
-
-    const result = toUpper ? text.toUpperCase() : text.toLowerCase();
-    
-    sendSuccessResponse(res, { result });
-  } catch (error) {
-    next(error);
-  }
-});
-
-module.exports = router;
-```
-
-### Testing New Operators
-
-```bash
-# Restart service (automatically discovers new operators)
-npm start
-
-# Test API
-curl -X POST http://localhost:8080/api/example/demo/convert \
-  -H "Content-Type: application/json" \
-  -d '{"text":"hello","toUpper":true}'
-
-# Run complete tests
-npm test
-```
+More enterprise operators coming soon:
+- 📧 **Email Service**: Enterprise email sending and templating
+- 📊 **Excel Processor**: Excel file generation and data processing  
+- 🔐 **Authentication**: SSO and enterprise authentication services
+- 🗄️ **Database Connector**: Enterprise database integration
+- 📈 **Chart Generator**: Business chart and report generation
 
 ## 🏗️ Project Structure
 
 ```
-genispace-operators-custom/
-├── operators/              # Operators directory
-│   ├── text-processing/    # Text processing operators
-│   ├── data-transform/     # Data transformation operators
-│   ├── notification/       # Notification service operators
-│   └── platform/          # Platform integration operators
-├── src/                   # Core framework (no modification needed)
+genispace-operators-enterprise/
+├── operators/              # Enterprise operators collection
+│   └── document/          # Document processing operators
+│       ├── pdf-generator.operator.js  # PDF generator configuration
+│       ├── pdf-generator.routes.js    # PDF generator business logic
+│       ├── PDFGenerator.js            # Core PDF generation service
+│       └── README.md                  # Detailed documentation
+├── src/                   # Core framework
 │   ├── config/            # Configuration management
 │   ├── core/              # Core services (discovery, registry, routing)
 │   ├── middleware/        # Middleware (auth, logging, error handling)
 │   ├── routes/            # Route management
 │   ├── services/          # Business services
 │   └── utils/             # Utility functions
-├── test.js               # Regression test script
-├── env.example           # Environment variables example
-├── docker-compose.yml    # Docker orchestration
-├── Dockerfile            # Containerization deployment
-└── README.md            # English documentation
+├── outputs/               # Generated PDF files storage
+├── env.example           # Environment configuration template
+├── Dockerfile            # Container deployment configuration
+└── README.md             # Project documentation
 ```
 
-## 🧪 Built-in Operator Examples
+## 🔧 Configuration
 
-| Operator | Function | Endpoint |
-|----------|----------|----------|
-| String Utils | Format, validate | `/api/text-processing/string-utils/*` |
-| JSON Transformer | Filter, merge | `/api/data-transform/json-transformer/*` |
-| Email Sender | Email notifications | `/api/notification/email-sender/*` |
-| **GeniSpace Platform Info** | **Platform integration demo** | `/api/platform/genispace-info/*` |
+### Basic Configuration
 
-> **New**: GeniSpace Platform Info operator demonstrates how to use SDK to call platform functions in operators, including user info, agent lists, etc.
-
-## 🔧 Configuration Instructions
-
-### Environment Variables
-
-#### Basic Configuration
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `8080` | Service port |
-| `NODE_ENV` | `development` | Runtime environment |
-| `CORS_ORIGIN` | `*` | CORS configuration |
-| `LOG_LEVEL` | `info` | Log level |
-| `LOG_CONSOLE` | `true` | Console log output |
-
-#### 🔐 GeniSpace API Key Authentication Configuration
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `GENISPACE_AUTH_ENABLED` | `false` | Enable GeniSpace platform API Key authentication |
-| `GENISPACE_API_BASE_URL` | `https://api.genispace.com` | GeniSpace platform API base URL |
-| `GENISPACE_AUTH_TIMEOUT` | `10000` | Authentication request timeout (milliseconds) |
-| `GENISPACE_AUTH_CACHE_TTL` | `300` | Authentication result cache time (seconds) |
-
-**After enabling authentication**:
-- All `/api/*` paths will require valid GeniSpace API Key
-- Supported authentication formats: 
-  - `Authorization: GeniSpace <your-api-key>`
-  - `GeniSpace: <your-api-key>` (recommended)
-- Does not support `Authorization: Bearer` format to avoid conflicts with custom operator authentication
-- Authentication results are cached for 5 minutes, reducing requests to GeniSpace platform
-
-### Production Deployment
+Copy `env.example` to `.env` and configure as needed:
 
 ```bash
-# Docker deployment
-docker build -t my-operators .
-docker run -p 8080:8080 -e NODE_ENV=production my-operators
+# Server Configuration
+PORT=8080
+NODE_ENV=production
 
-# Or run directly
-NODE_ENV=production npm start
-```
+# PDF Generator Configuration  
+STORAGE_PROVIDER=LOCAL
+PDF_FILE_SERVER_URL=http://localhost:8080/api/document/pdf-generator/download
 
-## 🔐 GeniSpace Platform Authentication Integration
-
-### API Key Authentication Configuration
-
-When deploying operator services to production environment, it's recommended to enable GeniSpace platform API Key authentication to ensure only authorized users can access your operators.
-
-#### 1. Enable Authentication
-
-```bash
-# Modify .env file
-GENISPACE_AUTH_ENABLED=true
+# GeniSpace Authentication (Optional)
+GENISPACE_AUTH_ENABLED=false
 GENISPACE_API_BASE_URL=https://api.genispace.com
 ```
 
-#### 2. Client Call Examples
-
-After enabling authentication, clients need to include valid GeniSpace API Key in request headers:
+### Docker Deployment
 
 ```bash
-# Use GeniSpace dedicated authentication format
-curl -X POST http://your-operator-service:8080/api/document/pdf-generator/generate-from-html \
-  -H "Authorization: GeniSpace your-genispace-api-key" \
-  -H "Content-Type: application/json" \
-  -d '{"htmlContent": "<h1>Hello</h1>"}'
+# Build and run with Docker
+docker build -t genispace-operators-enterprise .
+docker run -p 8080:8080 -e NODE_ENV=production genispace-operators-enterprise
 
-# String processing example
-curl -X POST http://your-operator-service:8080/api/text-processing/string-utils/format \
-  -H "Authorization: GeniSpace your-genispace-api-key" \
-  -H "Content-Type: application/json" \
-  -d '{"input": "hello world", "options": {"case": "title"}}'
+# Or use docker-compose
+docker-compose up -d
 ```
 
-#### 3. Using GeniSpace JavaScript SDK
+### Production Considerations
 
-SDK is mainly used for calling GeniSpace platform functions within operators:
+- ✅ Enable `GENISPACE_AUTH_ENABLED=true` for security
+- ✅ Configure cloud storage (Aliyun OSS/Tencent COS) for scalability  
+- ✅ Set appropriate `PDF_FILE_SERVER_URL` for external access
+- ✅ Monitor `outputs/` directory disk usage
 
-```bash
-npm install genispace  # Published version v1.0.0
-```
+## 🤝 Contributing to Enterprise Operators
 
-```javascript
-import GeniSpace from 'genispace';
+**We welcome contributions!** Help us expand this enterprise toolkit by submitting new operators and tools.
 
-// SDK used for calling GeniSpace platform interfaces
-const client = new GeniSpace({
-  apiKey: 'your-genispace-api-key',
-  baseURL: 'https://api.genispace.com' // GeniSpace platform address
-});
+### 🎯 What We're Looking For
 
-// Call GeniSpace platform functions
-const userInfo = await client.users.getProfile();
-const agents = await client.agents.list();
-const teams = await client.users.getTeams();
-```
+This enterprise service package focuses on **enterprise-grade tools and services**:
 
-#### 4. Error Handling
+- 📊 **Business Intelligence**: Reports, charts, analytics operators
+- 📧 **Communication**: Email, SMS, notification services  
+- 🗄️ **Data Processing**: Database connectors, ETL tools, data transformers
+- 🔐 **Security & Auth**: SSO, authentication, encryption services
+- 📈 **Automation**: Workflow tools, scheduling, monitoring operators
+- 💼 **Enterprise Integration**: CRM, ERP, HRM system connectors
 
-When authentication fails, the service returns standard error responses:
+### 🚀 How to Contribute
 
-```json
-{
-  "success": false,
-  "error": "API Key invalid or expired",
-  "code": "INVALID_API_KEY",
-  "timestamp": "2025-09-23T14:30:00.000Z"
-}
-```
+1. **💡 Submit Ideas**: Open an issue with your operator proposal
+2. **🔧 Develop**: Create operators following our enterprise standards
+3. **📤 Submit PR**: We review and integrate quality contributions
+4. **🎉 Auto-Deploy**: Approved operators are automatically updated to GeniSpace platform
 
-Common error codes:
-- `MISSING_API_KEY`: Missing API Key
-- `INVALID_API_KEY`: API Key invalid or expired
-- `INSUFFICIENT_PERMISSIONS`: Insufficient permissions
-- `AUTH_SERVICE_ERROR`: Authentication service error
+### 📋 Enterprise Standards
 
-#### 5. Security Best Practices
+- ✅ Production-ready code with comprehensive error handling
+- ✅ Complete OpenAPI documentation and examples
+- ✅ Docker compatibility and scalability considerations
+- ✅ Security best practices and authentication support
 
-- ✅ Always enable authentication in production environment
-- ✅ Regularly rotate API Keys
-- ✅ Use environment variables to store API Keys, don't hardcode
-- ✅ Monitor abnormal authentication failure requests
-- ✅ Configure appropriate cache time, balance performance and security
+## 🔗 Custom Development
 
-## 🤝 GeniSpace Platform Integration
-
-### Import Operators to Platform
-
-1. **Get Operator Definition Link**
-   ```bash
-   # Visit homepage to copy link, or access directly:
-   curl http://your-domain:8080/api/operators/category/name/definition
-   ```
-
-2. **Import in Platform**
-   - Enter GeniSpace platform operator management
-   - Select "GeniSpace Operator Definition Import"
-   - Paste definition link
-   - Import with one click
-
-3. **Start Using**
-   - Configure operators in AI agents
-   - Call operators in workflows
-
-## 📊 Quality Assurance
-
-### Automated Testing
-
-```bash
-npm test  # Run complete regression tests
-```
-
-Test coverage:
-- ✅ Service health check
-- ✅ Operator loading verification
-- ✅ API documentation generation
-- ✅ Core functionality testing
-- ✅ Error handling verification
-
-### Best Practices
-
-1. **Development Standards**
-   - Use `kebab-case` for operator names
-   - Follow OpenAPI 3.0 specifications
-   - Use unified error handling
-
-2. **Testing Process**  
-   ```bash
-   npm start  # Start service
-   npm test   # Run tests
-   ```
-
-3. **Pre-deployment Checks**
-   - All tests pass
-   - API documentation generates normally
-   - Operator definition links are accessible
-
-4. **API算子GeniSpace认证配置**
-   - 在算子运行配置中启用"GeniSpace认证"选项后，系统会自动传递System API Key
-   - 算子可以通过认证头验证执行人身份：
-   ```javascript
-   // 在算子路由中使用认证中间件
-   router.post('/my-api', auth(), (req, res) => {
-     if (req.genispace) {
-       // 获取执行人信息
-       const user = req.genispace.user;
-       const apiKey = req.genispace.apiKey;
-       // 算子逻辑...
-     }
-   });
-   ```
-   - 认证头格式：`GeniSpace: <system-api-key>`
-   - 可获取执行人信息：用户ID、姓名、邮箱、团队ID等
-
-## 💡 Common Questions
-
-**Q: How to add new operators?**
-A: Create `.operator.js` and `.routes.js` files under `operators/category/`.
-
-**Q: Operators not loading after service starts?**  
-A: Run `npm test` to check operator configuration and view console error messages.
-
-**Q: How to use in GeniSpace platform?**
-A: Copy operator definition link and select "GeniSpace Operator Definition Import" in platform.
-
-## 🔧 GeniSpace SDK Deep Integration
-
-This project has integrated **GeniSpace JavaScript SDK** for unified authentication and platform function calls.
-
-### 📦 Integration Features
-
-- ✅ **Unified Authentication**: Use GeniSpace platform API Key to verify user identity
-- ✅ **Smart Caching**: Authentication results are automatically cached for performance
-- ✅ **User Information**: Automatically obtain detailed information of authenticated users
-- ✅ **SDK Client**: Use `req.genispace.client` directly in operators
-
-### 🚀 Using SDK in Operators
-
-```javascript
-// Access user information and SDK client in operator routes
-router.post('/my-endpoint', async (req, res) => {
-  // Check authentication status
-  if (!req.genispace || !req.genispace.client) {
-    return res.status(401).json({ error: 'Authentication required to access this feature' });
-  }
-  
-  const { user, client } = req.genispace;
-  
-  // User information
-  console.log(`Authenticated user: ${user.name} (${user.email})`);
-  
-  // Call GeniSpace platform functions
-  const teams = await client.users.getTeams();
-  const stats = await client.users.getStatistics();
-  const agents = await client.agents.list({ page: 1, limit: 10 });
-  
-  res.json({ success: true, data: { user, teams, stats, agents } });
-});
-```
-
-### 📋 GeniSpace Platform Info Operator
-
-The project includes **GeniSpace Platform Info Operator** (`platform/genispace-info`) demonstrating SDK integration:
-
-#### 🔍 Available Interfaces
-- `POST /user-profile` - Get user profile, statistics, and team information
-- `POST /agents` - Get user agent list (with pagination support)
-
-#### 🧪 Demo Features
-- ✅ **SDK Authentication**: Uses `genispace@1.0.0` npm package
-- ✅ **Error Handling**: Unified asyncHandler error handling
-- ✅ **Flexible Calls**: Supports optional parameters to control returned content
-
-#### 🚀 Quick Test
-```bash
-# Start service
-GENISPACE_AUTH_ENABLED=true npm start
-
-# Test user profile interface
-curl -X POST http://localhost:8080/api/platform/genispace-info/user-profile \
-  -H "Authorization: GeniSpace your-genispace-api-key" \
-  -H "Content-Type: application/json" \
-  -d '{"includeStatistics": true, "includeTeams": true}'
-```
+Need custom operators? Fork from [**GeniSpace Custom Operators Library**](https://github.com/genispace/operators-custom) 🌟 for full development flexibility and documentation.
 
 ## 📞 Technical Support
 
 - **Official Website**: [https://genispace.com](https://genispace.com)
 - **Documentation**: [https://docs.genispace.com](https://docs.genispace.com)  
-- **Issue Reports**: [GitHub Issues](https://github.com/genispace/operators-custom/issues)
+- **Enterprise Contributions**: Submit PRs to this repository
+- **Custom Development**: [GeniSpace Custom Operators Library](https://github.com/genispace/operators-custom)
 
-## 📄 Open Source License
+## 📄 License
 
 This project is open source under the [MIT License](LICENSE).
+
+---
+
+**Developed by the GeniSpace Team**  
+*Empowering AI with enterprise-grade operators*

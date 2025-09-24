@@ -1,5 +1,5 @@
 {
-  "name": "operator-custom",
+  "name": "operator-enterprise",
   "version": "1.0.0",
   "description": "GeniSpace AI Platform Custom Operators Collection - Lightweight operators framework for business automation",
   "main": "src/index.js",
@@ -8,8 +8,8 @@
     "dev": "nodemon src/index.js",
     "test": "node test.js",
     "build": "echo 'Build completed successfully'",
-    "docker:build": "docker build -t genispace/operator-custom:latest .",
-    "docker:run": "docker run -p 8080:8080 genispace/operator-custom:latest"
+    "docker:build": "docker build -t genispace/operator-enterprise:latest .",
+    "docker:run": "docker run -p 8080:8080 genispace/operator-enterprise:latest"
   },
   "keywords": [
     "genispace",
@@ -26,26 +26,31 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/genispace/operator-custom.git"
+    "url": "https://github.com/genispace/operator-enterprise.git"
   },
   "bugs": {
-    "url": "https://github.com/genispace/operator-custom/issues"
+    "url": "https://github.com/genispace/operator-enterprise/issues"
   },
-  "homepage": "https://github.com/genispace/operator-custom#readme",
+  "homepage": "https://github.com/genispace/operator-enterprise#readme",
   "engines": {
     "node": ">=16.0.0",
     "npm": ">=8.0.0"
   },
   "dependencies": {
+    "ali-oss": "^6.23.0",
     "axios": "^1.6.2",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
+    "cos-nodejs-sdk-v5": "^2.15.4",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
     "genispace": "^1.0.0",
     "joi": "^17.11.0",
+    "marked": "^16.3.0",
     "morgan": "^1.10.0",
+    "mustache": "^4.2.0",
+    "puppeteer": "^24.22.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "uuid": "^9.0.1",

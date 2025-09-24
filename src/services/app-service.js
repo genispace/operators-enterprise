@@ -200,7 +200,7 @@ class ApplicationService {
         },
 
         // 方法定义
-        methods: this._convertPathsToMethods(config.openapi.paths, config.info.name, baseUrl),
+        methods: this._convertPathsToMethods(config.openapi.paths, config.info.name, config.info.category, baseUrl),
         
         // 元数据
         metadata: {
@@ -219,10 +219,11 @@ class ApplicationService {
    * 将OpenAPI paths转换为GeniSpace方法格式
    * @param {object} paths - OpenAPI paths
    * @param {string} operatorName - 算子名称
+   * @param {string} category - 算子分类
    * @param {string} baseUrl - 基础URL
    * @returns {Array} 方法列表
    */
-  _convertPathsToMethods(paths, operatorName, baseUrl = '') {
+  _convertPathsToMethods(paths, operatorName, category, baseUrl = '') {
     const methods = [];
     
     Object.entries(paths).forEach(([path, pathItem]) => {
@@ -253,7 +254,7 @@ class ApplicationService {
                 },
                 endpoint: {
                   type: 'string',
-                  default: path
+                  default: `/api/${category}/${operatorName}${path}`
                 },
                 headers: {
                   type: 'array',
@@ -278,7 +279,7 @@ class ApplicationService {
             },
             values: {
               method: httpMethod.toUpperCase(),
-              endpoint: path,
+              endpoint: `/api/${category}/${operatorName}${path}`,
               headers: [],
               caching: {
                 enabled: false,

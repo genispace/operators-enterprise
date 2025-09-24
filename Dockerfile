@@ -1,14 +1,24 @@
 # GeniSpace Custom Operators Docker 镜像
 
-FROM node:18-alpine
+FROM node:22-alpine
 
 # 设置工作目录
 WORKDIR /app
 
-# 安装必要的系统依赖
+# 安装必要的系统依赖（包含PDF生成所需的Chromium和中文字体）
 RUN apk add --no-cache \
     dumb-init \
-    ca-certificates
+    ca-certificates \
+    chromium \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ttf-freefont \
+    font-noto \
+    font-noto-cjk \
+    fontconfig \
+    wget
 
 # 创建非root用户
 RUN addgroup -g 1001 -S nodejs \
@@ -25,13 +35,25 @@ RUN npm ci --only=production --silent \
 COPY src/ ./src/
 COPY operators/ ./operators/
 
-# 设置目录权限
-RUN chown -R nodejs:nodejs /app
+# 创建必要的目录并设置权限（包含PDF生成outputs目录）
+RUN mkdir -p logs outputs uploads tmp \
+    && chown -R nodejs:nodejs /app
+
+# 配置字体缓存和中文字体支持
+RUN fc-cache -fv \
+    && fc-list | grep -i "noto\|cjk" || echo "字体检查完成"
 
 # 设置环境变量
 ENV NODE_ENV=production
 ENV PORT=8080
 ENV LOG_LEVEL=info
+
+# PDF生成相关环境变量
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV CHROME_BIN=/usr/bin/chromium-browser
+ENV CHROME_PATH=/usr/bin/chromium-browser
+ENV STORAGE_PROVIDER=LOCAL
 
 # 切换到非root用户
 USER nodejs
@@ -49,12 +71,12 @@ CMD ["node", "src/index.js"]
 
 # 标签信息
 LABEL maintainer="genispace.com Dev Team <dev@genispace.com>"
-LABEL version="1.0.0"
-LABEL description="GeniSpace Custom Operators - Lightweight operators framework"
-LABEL org.opencontainers.image.title="GeniSpace Custom Operators"
-LABEL org.opencontainers.image.description="GeniSpace AI Platform Custom Operators Collection"
-LABEL org.opencontainers.image.source="https://github.com/genispace/operator-custom"
+LABEL version="1.1.0"
+LABEL description="GeniSpace Enterprise Operators"
+LABEL org.opencontainers.image.title="GeniSpace Enterprise Operators"
+LABEL org.opencontainers.image.description="GeniSpace AI Platform Enterprise Operators Collection"
+LABEL org.opencontainers.image.source="https://github.com/genispace/operator-enterprise"
 LABEL org.opencontainers.image.url="https://genispace.com"
 LABEL org.opencontainers.image.vendor="genispace.com"
-LABEL org.opencontainers.image.version="1.0.0"
+LABEL org.opencontainers.image.version="1.1.0"
 LABEL org.opencontainers.image.licenses="MIT"
