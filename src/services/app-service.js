@@ -200,7 +200,7 @@ class ApplicationService {
         },
 
         // 方法定义
-        methods: this._convertPathsToMethods(config.openapi.paths, config.info.name, config.info.category, baseUrl),
+        methods: this._convertPathsToMethods(config.openapi.paths, config.info.name, config.info.category, baseUrl, config.openapi),
         
         // 元数据
         metadata: {
@@ -221,9 +221,10 @@ class ApplicationService {
    * @param {string} operatorName - 算子名称
    * @param {string} category - 算子分类
    * @param {string} baseUrl - 基础URL
+   * @param {object} fullOpenApiDoc - 完整的OpenAPI文档，用于解析$ref
    * @returns {Array} 方法列表
    */
-  _convertPathsToMethods(paths, operatorName, category, baseUrl = '') {
+  _convertPathsToMethods(paths, operatorName, category, baseUrl = '', fullOpenApiDoc = null) {
     const methods = [];
     
     Object.entries(paths).forEach(([path, pathItem]) => {
@@ -240,7 +241,7 @@ class ApplicationService {
           inputSchema: this._extractInputSchema(operation.requestBody),
           
           // 输出Schema（从responses提取）
-          outputSchema: this._extractOutputSchema(operation.responses),
+          outputSchema: this._extractOutputSchema(operation.responses, fullOpenApiDoc),
           
           // 方法配置
           configuration: {
@@ -319,9 +320,10 @@ class ApplicationService {
   /**
    * 从responses提取输出Schema
    * @param {object} responses - OpenAPI responses
+   * @param {object} fullOpenApiDoc - 完整的OpenAPI文档，用于解析$ref
    * @returns {object} 输出Schema
    */
-  _extractOutputSchema(responses) {
+  _extractOutputSchema(responses, fullOpenApiDoc = null) {
     // 优先查找200响应
     const successResponse = responses['200'] || responses['201'] || responses['default'];
     
@@ -331,10 +333,50 @@ class ApplicationService {
 
     const jsonContent = successResponse.content?.['application/json'];
     if (jsonContent?.schema) {
+      // 如果包含$ref，尝试解析
+      if (jsonContent.schema.$ref && fullOpenApiDoc) {
+        return this._resolveRef(jsonContent.schema.$ref, fullOpenApiDoc);
+      }
       return jsonContent.schema;
     }
 
     return { type: 'object', properties: {} };
+  }
+
+  /**
+   * 解析OpenAPI中的$ref引用
+   * @param {string} ref - $ref字符串
+   * @param {object} openApiDoc - 完整的OpenAPI文档
+   * @returns {object} 解析后的schema
+   */
+  _resolveRef(ref, openApiDoc) {
+    try {
+      // 解析类似 "#/paths/~1generate-from-html/post/responses/200/content/application~1json/schema" 的引用
+      if (ref.startsWith('#/')) {
+        const pathParts = ref.substring(2).split('/');
+        let current = openApiDoc;
+        
+        for (const part of pathParts) {
+          // 处理URL编码的字符，如 ~1 代表 /
+          const decodedPart = part.replace(/~1/g, '/').replace(/~0/g, '~');
+          
+          if (current && typeof current === 'object' && decodedPart in current) {
+            current = current[decodedPart];
+          } else {
+            console.warn(`无法解析$ref路径: ${ref}`);
+            return { type: 'object', properties: {} };
+          }
+        }
+        
+        return current || { type: 'object', properties: {} };
+      }
+      
+      console.warn(`不支持的$ref格式: ${ref}`);
+      return { type: 'object', properties: {} };
+    } catch (error) {
+      console.error(`解析$ref失败: ${ref}`, error);
+      return { type: 'object', properties: {} };
+    }
   }
 
   /**
